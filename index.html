@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}@media (max-width:640px){.barra{padding-bottom:calc(52px + env(safe-area-inset-bottom,0px))!important}}</style>
+</head>
+<body>
+<title>Agenda Vívian Martins</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,600&family=Great+Vibes&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap">
+<style>
+/* Layout: cartão de salão em coluna única — cliente: serviços > dia/hora > dados; #agenda: lista do dia pra Vívian */
+:root {
+  --bg: #fbf6f5;
+  --paper: #ffffff;
+  --ink: #3a2a2d;
+  --muted: #8a7276;
+  --line: #ecdcdc;
+  --rose: #c25a6e;
+  --rose-soft: #f6e3e6;
+  --on-rose: #ffffff;
+  --ok: #3d7a5a;
+  --ok-soft: #e1f0e7;
+  --display: "Bodoni Moda", Georgia, serif;
+  --script: "Great Vibes", "Brush Script MT", cursive;
+  --body: "Nunito Sans", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1d1618; --paper: #271e21; --ink: #f3e7e8; --muted: #b59ca1; --line: #3d2f33;
+  --rose: #e48a9b; --rose-soft: #3a2429; --on-rose: #2a1418; --ok: #8fd1ab; --ok-soft: #1f3328; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #1d1618; --paper: #271e21; --ink: #f3e7e8; --muted: #b59ca1; --line: #3d2f33;
+  --rose: #e48a9b; --rose-soft: #3a2429; --on-rose: #2a1418; --ok: #8fd1ab; --ok-soft: #1f3328; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 140px }
+.wrap { max-width: 640px; margin: 0 auto }
+
+header { text-align: center; padding-block: 40px 24px }
+header h1 { margin: 0; line-height: 1 }
+header .n1 { display: block; font-family: var(--display); font-weight: 500; font-size: clamp(44px, 12vw, 64px); color: var(--rose) }
+header .n2 { display: block; font-family: var(--script); font-weight: 400; font-size: clamp(40px, 11vw, 58px); color: var(--rose); margin-top: -10px }
+header p { color: var(--muted); margin: 12px 0 0; font-size: 15px }
+
+section { margin-top: 28px }
+h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0 0 4px; text-wrap: balance }
+.hint { color: var(--muted); font-size: 14px; margin: 0 0 14px }
+.aviso { background: var(--rose-soft); border-radius: 10px; padding: 10px 14px; font-size: 14px; margin-top: 16px }
+
+.servicos { list-style: none; margin: 0; padding: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden }
+.servicos li + li { border-top: 1px solid var(--line) }
+.servicos label { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer }
+.servicos input { width: 20px; height: 20px; accent-color: var(--rose); flex: none }
+.servicos .nome { flex: 1; min-width: 0 }
+.servicos .dur { display: block; font-size: 13px; color: var(--muted) }
+.servicos .preco { font-variant-numeric: tabular-nums; color: var(--rose); font-weight: 700; white-space: nowrap }
+.servicos li:has(input:checked) { background: var(--rose-soft) }
+
+.dias { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin }
+.dia, .hora { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 12px; font: inherit; cursor: pointer }
+.dia { flex: none; width: 64px; padding: 8px 0; text-align: center }
+.dia small { display: block; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em }
+.dia b { font-family: var(--display); font-size: 22px }
+.horas { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; margin-top: 14px }
+.hora { padding: 10px 0; font-variant-numeric: tabular-nums; font-weight: 600 }
+.dia[aria-pressed="true"], .hora[aria-pressed="true"] { background: var(--rose); border-color: var(--rose); color: var(--on-rose) }
+.dia[aria-pressed="true"] small { color: var(--on-rose) }
+.hora:disabled { opacity: .35; text-decoration: line-through; cursor: not-allowed }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px }
+
+.campos { display: grid; gap: 12px }
+.campos label { font-size: 14px; font-weight: 600 }
+.campos input { display: block; width: 100%; margin-top: 4px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); font: inherit }
+
+.barra { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paper); border-top: 1px solid var(--line);
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)) }
+.barra .in { max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px }
+.resumo { flex: 1; min-width: 0; font-size: 14px; color: var(--muted) }
+.resumo b { display: block; color: var(--ink); font-size: 18px; font-variant-numeric: tabular-nums }
+.btn { border: 0; background: var(--rose); color: var(--on-rose); font: inherit; font-weight: 700; padding: 13px 20px; border-radius: 999px; cursor: pointer }
+.btn:disabled { opacity: .4; cursor: not-allowed }
+.btn.sec { background: transparent; color: var(--rose); border: 1px solid var(--rose) }
+.btn.mini { padding: 7px 14px; font-size: 14px }
+
+.ok { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-top: 28px }
+.ok h2 { color: var(--rose) }
+.ok pre { white-space: pre-wrap; font-family: var(--body); background: var(--rose-soft); padding: 14px; border-radius: 10px; margin: 12px 0 }
+.acoes { display: flex; flex-wrap: wrap; gap: 10px }
+a.btn { text-decoration: none; display: inline-block }
+footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 36px }
+footer a { color: var(--rose) }
+
+/* ---- painel #agenda ---- */
+#painel { padding-bottom: 40px }
+.topo { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-block: 32px 8px }
+.topo h1 { font-family: var(--display); font-weight: 500; font-size: 34px; margin: 0; color: var(--rose) }
+.topo a { color: var(--rose); font-size: 14px }
+.contagem { color: var(--muted); font-size: 14px; margin: 0 }
+.diaTitulo { font-family: var(--display); font-weight: 600; font-size: 18px; margin: 26px 0 10px }
+.cards { display: grid; gap: 10px }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: grid; grid-template-columns: auto 1fr; gap: 4px 16px }
+.card .h { font-family: var(--display); font-weight: 600; font-size: 22px; font-variant-numeric: tabular-nums; grid-row: span 3 }
+.card .cli { font-weight: 700; min-width: 0 }
+.card .srv { font-size: 14px; color: var(--muted); min-width: 0 }
+.card .rod { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; grid-column: 2 }
+.pill { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 3px 10px; border-radius: 999px; background: var(--rose-soft); color: var(--rose) }
+.pill.conf { background: var(--ok-soft); color: var(--ok) }
+.card .fone { font-size: 14px; font-variant-numeric: tabular-nums; user-select: all }
+.vazio { background: var(--paper); border: 1px dashed var(--line); border-radius: 14px; padding: 24px; text-align: center; color: var(--muted); margin-top: 20px }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important } }
+</style>
+
+<!-- ============ TELA DA CLIENTE ============ -->
+<div class="wrap" id="cliente">
+  <header>
+    <h1><span class="n1">Vívian</span><span class="n2">Martins</span></h1>
+    <p>Unhas, pés e sobrancelhas · agende seu horário</p>
+  </header>
+
+  <form id="form">
+    <section>
+      <h2>1. Escolha os serviços</h2>
+      <p class="hint">Pode marcar mais de um.</p>
+      <ul class="servicos" id="servicos"></ul>
+    </section>
+
+    <section>
+      <h2>2. Dia e horário</h2>
+      <p class="hint">Atendimento de terça a sábado. Horários riscados já estão ocupados.</p>
+      <div class="dias" id="dias"></div>
+      <div class="horas" id="horas"></div>
+      <p class="aviso" id="semBanco" hidden>A agenda online não carregou aqui. Você ainda pode montar o pedido e mandar pelo WhatsApp.</p>
+    </section>
+
+    <section>
+      <h2>3. Seus dados</h2>
+      <div class="campos">
+        <label for="nome">Nome<input id="nome" required autocomplete="name" placeholder="Seu nome"></label>
+        <label for="fone">WhatsApp<input id="fone" required inputmode="tel" autocomplete="tel" placeholder="(43) 99999-9999"></label>
+      </div>
+    </section>
+
+    <div class="ok" id="ok" hidden>
+      <h2 id="okTitulo">Horário reservado!</h2>
+      <p class="hint" id="okTexto">Seu horário já está guardado na agenda. Se quiser, mande a mensagem pra Vívian também.</p>
+      <pre id="msg"></pre>
+      <div class="acoes">
+        <a class="btn" id="zap" href="#" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>
+        <button type="button" class="btn sec" id="copiar">Copiar mensagem</button>
+      </div>
+    </div>
+
+    <div class="barra" id="barra">
+      <div class="in">
+        <div class="resumo" id="resumo">Nenhum serviço<b>R$ 0,00</b></div>
+        <button class="btn" id="agendar" disabled>Agendar</button>
+      </div>
+    </div>
+  </form>
+
+  <footer>Pagamento no local · tolerância de 10 min<span id="linkPainel" hidden> · <a href="#agenda">Ver agenda</a></span></footer>
+</div>
+
+<!-- ============ PAINEL DA VÍVIAN (#agenda) ============ -->
+<div class="wrap" id="painel" hidden>
+  <div class="topo">
+    <h1>Agenda</h1>
+    <a href="#">Voltar pro site</a>
+  </div>
+  <p class="contagem" id="contagem">Carregando agendamentos…</p>
+  <div id="lista"></div>
+</div>
+
+<script>
+// ===== CONFIGURAÇÃO (é só editar aqui) =====
+const WHATSAPP = "5543988632810"; // número da Vívian com DDI+DDD, ex: "5543999999999"
+const DIAS_ATENDE = [2, 3, 4, 5, 6]; // 0=dom ... 6=sáb
+const HORARIOS = ["08:00","09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00"];
+const FECHA = "19:00"; // serviço não pode passar desse horário
+const SERVICOS = [
+  { nome: "Alongamento", preco: 150, min: 150 },
+  { nome: "Manutenção", preco: 100, min: 120 },
+  { nome: "Unhas quebradas (cada)", preco: 5, min: 10 },
+  { nome: "Pé e mão", preco: 70, min: 90 },
+  { nome: "Pés", preco: 45, min: 50 },
+  { nome: "Mãos", preco: 40, min: 45 },
+  { nome: "Esmaltação em gel", preco: 70, min: 60 },
+  { nome: "Banho de gel", preco: 80, min: 75 },
+  { nome: "Blindagem", preco: 70, min: 60 },
+  { nome: "Spa dos pés", preco: 70, min: 60 },
+  { nome: "Design de sobrancelha", preco: 25, min: 30 },
+  { nome: "Henna", preco: 35, min: 40 },
+  { nome: "Buço", preco: 10, min: 10 },
+  { nome: "Pelo do nariz", preco: 10, min: 10 },
+];
+// ==========================================
+
+const $ = (id) => document.getElementById(id);
+const real = (v) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const semana = ["dom","seg","ter","qua","qui","sex","sáb"];
+const paraMin = (h) => { const [a, b] = h.split(":"); return a * 60 + +b; };
+const iso = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const esc = (t) => String(t ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+let db = null;            // banco compartilhado (null = não disponível)
+let ocupados = new Set(); // "2026-11-04_1400"
+let diaEscolhido = null, horaEscolhida = null;
+
+/* ---------- serviços ---------- */
+$("servicos").innerHTML = SERVICOS.map((s, i) => `
+  <li><label for="s${i}">
+    <input type="checkbox" id="s${i}" value="${i}">
+    <span class="nome">${s.nome}<span class="dur">~${s.min} min</span></span>
+    <span class="preco">${real(s.preco)}</span>
+  </label></li>`).join("");
+
+function escolhidos() {
+  return [...document.querySelectorAll(".servicos input:checked")].map(c => SERVICOS[c.value]);
+}
+const duracao = () => escolhidos().reduce((t, s) => t + s.min, 0) || 30;
+
+// quais horários da lista o atendimento ocupa, começando em "hora"
+function slotsDe(hora, min) {
+  const ini = paraMin(hora), fim = ini + min;
+  if (fim > paraMin(FECHA)) return null; // passa do horário de fechar
+  return HORARIOS.filter(h => paraMin(h) >= ini && paraMin(h) < fim);
+}
+
+/* ---------- dias e horas ---------- */
+const dias = [];
+for (let d = new Date(); dias.length < 14; d.setDate(d.getDate() + 1)) {
+  if (DIAS_ATENDE.includes(d.getDay())) dias.push(new Date(d));
+}
+$("dias").innerHTML = dias.map((d, i) =>
+  `<button type="button" class="dia" data-i="${i}" aria-pressed="false"><small>${semana[d.getDay()]}</small><b>${d.getDate()}</b></button>`).join("");
+
+function horaLivre(h) {
+  const agora = new Date();
+  if (iso(diaEscolhido) === iso(agora) && paraMin(h) <= agora.getHours() * 60 + agora.getMinutes()) return false;
+  const slots = slotsDe(h, duracao());
+  if (!slots) return false;
+  return slots.every(s => !ocupados.has(`${iso(diaEscolhido)}_${s.replace(":","")}`));
+}
+
+function mostrarHoras() {
+  if (!diaEscolhido) return;
+  if (horaEscolhida && !horaLivre(horaEscolhida)) horaEscolhida = null;
+  $("horas").innerHTML = HORARIOS.map(h =>
+    `<button type="button" class="hora" ${horaLivre(h) ? "" : "disabled"} aria-pressed="${h === horaEscolhida}">${h}</button>`).join("");
+}
+
+$("dias").addEventListener("click", (e) => {
+  const b = e.target.closest(".dia"); if (!b) return;
+  document.querySelectorAll(".dia").forEach(x => x.setAttribute("aria-pressed", x === b));
+  diaEscolhido = dias[b.dataset.i]; horaEscolhida = null;
+  mostrarHoras(); atualizar();
+});
+$("horas").addEventListener("click", (e) => {
+  const b = e.target.closest(".hora"); if (!b || b.disabled) return;
+  horaEscolhida = b.textContent;
+  mostrarHoras(); atualizar();
+});
+
+function atualizar() {
+  const lista = escolhidos();
+  const total = lista.reduce((t, s) => t + s.preco, 0);
+  const min = lista.reduce((t, s) => t + s.min, 0);
+  $("resumo").innerHTML = (lista.length ? `${lista.length} serviço(s) · ~${Math.floor(min/60)}h${String(min%60).padStart(2,"0")}` : "Nenhum serviço") + `<b>${real(total)}</b>`;
+  $("agendar").disabled = !(lista.length && diaEscolhido && horaEscolhida);
+  $("ok").hidden = true;
+}
+$("servicos").addEventListener("change", () => { mostrarHoras(); atualizar(); });
+
+/* ---------- agendar ---------- */
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!$("nome").reportValidity() || !$("fone").reportValidity()) return;
+  const lista = escolhidos();
+  const total = lista.reduce((t, s) => t + s.preco, 0);
+  const min = lista.reduce((t, s) => t + s.min, 0);
+  const dataISO = iso(diaEscolhido);
+  const slots = slotsDe(horaEscolhida, min);
+  const nome = $("nome").value.trim(), fone = $("fone").value.trim();
+
+  const dataTxt = diaEscolhido.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
+  const msg = `Olá Vívian! Quero agendar:\n\n` +
+    lista.map(s => `• ${s.nome} – ${real(s.preco)}`).join("\n") +
+    `\n\nTotal: ${real(total)}\nDia: ${dataTxt} às ${horaEscolhida}\nNome: ${nome}\nWhatsApp: ${fone}`;
+
+  let salvou = false;
+  if (db) {
+    $("agendar").disabled = true; $("agendar").textContent = "Salvando…";
+    try {
+      const ref = db.collection("agendamentos").doc();
+      await ref.set({
+        nome, fone, data: dataISO, hora: horaEscolhida, quando: `${dataISO} ${horaEscolhida}`,
+        servicos: lista.map(s => s.nome), total, minutos: min, slots,
+        status: "pendente", criadoEm: new Date().toISOString()
+      });
+      for (const s of slots) {
+        await db.doc(`horarios/${dataISO}_${s.replace(":","")}`).set({ data: dataISO, hora: s, agendamento: ref.id });
+      }
+      salvou = true;
+    } catch (err) {
+      console.error(err);
+    }
+    $("agendar").textContent = "Agendar";
+  }
+
+  $("okTitulo").textContent = salvou ? "Horário reservado!" : "Falta só enviar!";
+  $("okTexto").textContent = salvou
+    ? "Seu horário já está guardado na agenda. Se quiser, mande a mensagem pra Vívian também."
+    : "Toque no botão abaixo pra mandar seu pedido pra Vívian no WhatsApp. Ela confirma seu horário por lá.";
+  $("msg").textContent = msg;
+  $("zap").href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+  $("ok").hidden = false;
+  $("ok").scrollIntoView({ behavior: "smooth", block: "center" });
+});
+
+$("copiar").addEventListener("click", () => {
+  navigator.clipboard.writeText($("msg").textContent)
+    .then(() => $("copiar").textContent = "Copiado!")
+    .catch(() => { const r = document.createRange(); r.selectNodeContents($("msg")); getSelection().removeAllRanges(); getSelection().addRange(r); });
+});
+
+/* ---------- painel da Vívian ---------- */
+let painelLigado = false;
+function ligarPainel() {
+  if (painelLigado) return;
+  if (!db) { $("contagem").textContent = "A agenda não está disponível nesta visualização."; return; }
+  painelLigado = true;
+  const timer = setTimeout(() => $("contagem").textContent = "A agenda está demorando pra carregar. Confira a conexão.", 10000);
+  db.collection("agendamentos").orderBy("quando").onSnapshot((snap) => {
+    clearTimeout(timer);
+    const hoje = iso(new Date());
+    const ags = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(a => a.data >= hoje);
+    desenharPainel(ags);
+  }, () => {
+    clearTimeout(timer);
+    painelLigado = false;
+    $("contagem").textContent = "Só a Vívian (ou quem pode editar a página) consegue ver a agenda.";
+    $("lista").innerHTML = "";
+  });
+}
+
+function desenharPainel(ags) {
+  $("contagem").textContent = ags.length ? `${ags.length} agendamento(s) daqui pra frente` : "";
+  if (!ags.length) {
+    $("lista").innerHTML = `<div class="vazio">Nenhum agendamento ainda.<br>Quando uma cliente marcar pelo site, aparece aqui.</div>`;
+    return;
+  }
+  const porDia = {};
+  ags.forEach(a => (porDia[a.data] ||= []).push(a));
+  $("lista").innerHTML = Object.entries(porDia).map(([data, lista]) => {
+    const [y, m, d] = data.split("-");
+    const titulo = new Date(y, m - 1, d).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" });
+    return `<h2 class="diaTitulo">${titulo[0].toUpperCase() + titulo.slice(1)}</h2><div class="cards">` + lista.map(a => `
+      <div class="card" data-id="${a.id}">
+        <span class="h">${esc(a.hora)}</span>
+        <span class="cli">${esc(a.nome)}</span>
+        <span class="srv">${esc((a.servicos || []).join(", "))} · ${real(a.total || 0)}</span>
+        <div class="rod">
+          <span class="pill ${a.status === "confirmado" ? "conf" : ""}">${a.status === "confirmado" ? "confirmado" : "pendente"}</span>
+          <span class="fone">${esc(a.fone)}</span>
+          ${a.status !== "confirmado" ? `<button class="btn mini" data-acao="confirmar">Confirmar</button>` : ""}
+          <button class="btn sec mini" data-acao="cancelar">Cancelar</button>
+        </div>
+      </div>`).join("") + `</div>`;
+  }).join("");
+  window._ags = Object.fromEntries(ags.map(a => [a.id, a]));
+}
+
+$("lista").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-acao]"); if (!b) return;
+  const id = b.closest(".card").dataset.id;
+  const ag = window._ags[id];
+  if (b.dataset.acao === "confirmar") {
+    b.disabled = true;
+    await db.doc(`agendamentos/${id}`).update({ status: "confirmado" }).catch(() => b.disabled = false);
+  } else {
+    if (b.dataset.certeza !== "1") { b.dataset.certeza = "1"; b.textContent = "Toque de novo pra cancelar"; return; }
+    b.disabled = true;
+    try {
+      for (const s of ag.slots || []) await db.doc(`horarios/${ag.data}_${s.replace(":","")}`).delete();
+      await db.doc(`agendamentos/${id}`).delete();
+    } catch { b.disabled = false; b.textContent = "Erro, tente de novo"; }
+  }
+});
+
+/* ---------- troca de tela pelo #agenda ---------- */
+function rota() {
+  const painel = location.hash === "#agenda";
+  $("painel").hidden = !painel;
+  $("cliente").hidden = painel;
+  if (painel) ligarPainel();
+}
+window.addEventListener("hashchange", rota);
+
+/* ---------- liga o banco ---------- */
+(async () => {
+  db = window.claude ? await window.claude.use("db") : null;
+  if (!db) { rota(); return; } // sem banco: funciona só no modo WhatsApp
+  // horários ocupados ao vivo
+  db.collection("horarios").onSnapshot((snap) => {
+    ocupados = new Set(snap.docs.map(d => d.id));
+    mostrarHoras();
+    $("agendar").disabled = !(escolhidos().length && diaEscolhido && horaEscolhida);
+  });
+  const user = await window.claude.use("user");
+  if (await (user?.canEdit() ?? false)) $("linkPainel").hidden = false;
+  rota();
+})();
+
+// estado inicial: primeiro dia já selecionado
+document.querySelector(".dia").click();
+rota();
+</script>
+</body>
+</html>
